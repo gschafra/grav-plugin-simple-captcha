@@ -1,4 +1,5 @@
 en:
   PLUGIN_SIMPLE_CAPTCHA:
-    TEXT_VARIABLE: Text Variable
-    TEXT_VARIABLE_HELP: Text to add to the top of a page
+    DISTORTION: Enable distortion
+    SESSION_ID: Session ID
+    SESSION_ID_HELP: Session ID used to store captcha phrase

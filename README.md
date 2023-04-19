@@ -2,7 +2,7 @@
 
 **This README.md file should be modified to describe the features, installation, configuration, and general usage of the plugin.**
 
-The **Simple Captcha** Plugin is an extension for [Grav CMS](https://github.com/getgrav/grav). Captcha plugin using SimpleCaptcha
+The **Simple Captcha** Plugin is an extension for [Grav CMS](https://github.com/getgrav/grav). It provides captchas for Grav forms using SimpleCaptcha.
 
 ## Installation
 
@@ -23,7 +23,7 @@ To install the plugin manually, download the zip-version of this repository and 
 You should now have all the plugin files under
 
     /your/site/grav/user/plugins/simple-captcha
-	
+
 > NOTE: This plugin is a modular component for Grav which may require other plugins to operate, please see its [blueprints.yaml-file on GitHub](https://github.com/gschafra/grav-plugin-simple-captcha/blob/main/blueprints.yaml).
 
 ### Admin Plugin

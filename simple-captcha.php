@@ -3,11 +3,9 @@
 namespace Grav\Plugin;
 
 use Composer\Autoload\ClassLoader;
-use Grav\Common\Config\Config;
 use Grav\Common\Plugin;
-use Grav\Common\Grav;
-use SimpleCaptcha\Builder;
 use RocketTheme\Toolbox\Event\Event;
+use SimpleCaptcha\Builder;
 
 /**
  * Class SimpleCaptchaPlugin
@@ -56,12 +54,12 @@ class SimpleCaptchaPlugin extends Plugin
      */
     public function onPluginsInitialized(): void
     {
-        $this->initBuilder();
-
         // Don't proceed if we are in the admin plugin
         if ($this->isAdmin()) {
             return;
         }
+
+        $this->initCaptcha(!$this->getSessionPhrase());
 
         // Enable the main events we are interested in
         $this->enable([
@@ -82,6 +80,11 @@ class SimpleCaptchaPlugin extends Plugin
      */
     public function onTwigSiteVariables()
     {
+         // Don't proceed if we are in the admin plugin
+         if ($this->isAdmin()) {
+            return;
+        }
+
         $this->grav['twig']->twig_vars['simplecaptcha'] = $this->simpleCaptcha;
     }
 
@@ -99,15 +102,16 @@ class SimpleCaptchaPlugin extends Plugin
             case 'simplecaptcha':
                 // make sure we have the details
                 $phrase = $form->getValue('simplecaptchaphrase');
-                if ($phrase && $this->simpleCaptcha->compare($phrase)) {
-                    // do nothing captcha passed successfully
-                } else {
+                if (!$phrase || !$this->simpleCaptcha->compare($this->getSessionPhrase(), $phrase)) {
                     $this->grav->fireEvent('onFormValidationError', new Event([
                         'form'    => $form,
                         'message' => $this->grav['language']->translate('PLUGIN_FORM.ERROR_VALIDATING_CAPTCHA')
                     ]));
                     $event->stopPropagation();
                 }
+
+                // Generate a new captcha
+                $this->initCaptcha();
 
                 break;
         }
@@ -123,15 +127,35 @@ class SimpleCaptchaPlugin extends Plugin
         ];
     }
 
-    private function initBuilder()
+    private function initCaptcha(bool $setPhrase = true)
     {
+        if (session_status() != PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+
         $builder = Builder::create();
         $builder->bgColor = [255, 255, 255];
         $builder->textColor = [0, 0, 0];
-        $builder->distort = false;
+        $builder->distort = $this->config->get('plugins.simple-captcha.distort', false);
         $builder->applyEffects = false;
         $builder->applyNoise = false;
 
+        // Don't overwrite the captcha if it's already been created
         $this->simpleCaptcha = $builder->build(150, 100);
+
+        if ($setPhrase) {
+            $this->setSessionPhrase($builder->phrase);
+        }
+    }
+
+    private function getSessionPhrase(): ?string
+    {
+        $phrase = $this->config->get('plugins.simple-captcha.session_id', 'SIMPLE_CAPTCHA_PHRASE');
+        return isset($_SESSION[$phrase]) ? $_SESSION[$phrase] : null;
+    }
+
+    private function setSessionPhrase(string $phrase): void
+    {
+        $_SESSION[$this->config->get('plugins.simple-captcha.session_id', 'SIMPLE_CAPTCHA_PHRASE')] = $phrase;
     }
 }

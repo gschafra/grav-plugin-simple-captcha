@@ -30,7 +30,17 @@ form:
         0: PLUGIN_ADMIN.DISABLED
       validate:
         type: bool
-    text_var:
+    distortion:
+      type: toggle
+      label: PLUGIN_SIMPLE_CAPTCHA.DISTORTION
+      highlight: 1
+      default: 0
+      options:
+        1: PLUGIN_ADMIN.ENABLED
+        0: PLUGIN_ADMIN.DISABLED
+      validate:
+        type: bool
+    session_id:
       type: text
-      label: PLUGIN_SIMPLE_CAPTCHA.TEXT_VARIABLE
-      help: PLUGIN_SIMPLE_CAPTCHA.TEXT_VARIABLE_HELP
+      label: PLUGIN_SIMPLE_CAPTCHA.SESSION_ID
+      help: PLUGIN_SIMPLE_CAPTCHA.SESSION_ID_HELP

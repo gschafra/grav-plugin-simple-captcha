@@ -33,9 +33,6 @@ class SimpleCaptchaPlugin extends Plugin
                 // ['autoload', 100000],
                 ['onPluginsInitialized', 0],
             ],
-            'onTwigTemplatePaths' => ['onTwigTemplatePaths', 0],
-            'onTwigSiteVariables' => ['onTwigSiteVariables', 0],
-            'onFormProcessed' => ['onFormProcessed', 0],
         ];
     }
 
@@ -59,12 +56,14 @@ class SimpleCaptchaPlugin extends Plugin
             return;
         }
 
-        $this->initCaptcha(!$this->getSessionPhrase());
+        $events = [
+            'onTwigTemplatePaths' => ['onTwigTemplatePaths', 0],
+            'onTwigSiteVariables' => ['onTwigSiteVariables', 0],
+            'onFormProcessed' => ['onFormProcessed', 0],
+        ];
 
         // Enable the main events we are interested in
-        $this->enable([
-            // Put your main events here
-        ]);
+        $this->enable($events);
     }
 
     /**
@@ -85,6 +84,8 @@ class SimpleCaptchaPlugin extends Plugin
             return;
         }
 
+        $this->simpleCaptcha = $this->initCaptcha();
+
         $this->grav['twig']->twig_vars['simplecaptcha'] = $this->simpleCaptcha;
     }
 
@@ -102,7 +103,7 @@ class SimpleCaptchaPlugin extends Plugin
             case 'simplecaptcha':
                 // make sure we have the details
                 $phrase = $form->getValue('simplecaptchaphrase');
-                if (!$phrase || !$this->simpleCaptcha->compare($this->getSessionPhrase(), $phrase)) {
+                if (!$phrase || $phrase !== $phrase) {
                     $this->grav->fireEvent('onFormValidationError', new Event([
                         'form'    => $form,
                         'message' => $this->grav['language']->translate('PLUGIN_FORM.ERROR_VALIDATING_CAPTCHA')
@@ -127,7 +128,7 @@ class SimpleCaptchaPlugin extends Plugin
         ];
     }
 
-    private function initCaptcha(bool $setPhrase = true)
+    private function initCaptcha(): Builder
     {
         if (session_status() != PHP_SESSION_ACTIVE) {
             session_start();
@@ -143,9 +144,9 @@ class SimpleCaptchaPlugin extends Plugin
         // Don't overwrite the captcha if it's already been created
         $this->simpleCaptcha = $builder->build(150, 100);
 
-        if ($setPhrase) {
-            $this->setSessionPhrase($builder->phrase);
-        }
+        $this->setSessionPhrase($builder->phrase);
+
+        return $builder;
     }
 
     private function getSessionPhrase(): ?string

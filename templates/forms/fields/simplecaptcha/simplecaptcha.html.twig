@@ -2,5 +2,6 @@
 
 {% block input %}
     <img src="{{ simplecaptcha.inline() }}" />
-    <input type="text" name="simplecaptchaphrase">
+    <input type="text" name="simplecaptchaphrase" required="required" placeholder="Eingeben">
 {% endblock %}
+

@@ -1,0 +1,94 @@
+name: Quality CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  quality-check:
+    runs-on: ubuntu-latest
+    name: Quality workflow
+    steps:
+      # - name: Execute Action Graph
+      #   uses: actionforge/action@5636645834e4a75cbc8c6c204e872ddc27632738 # v0.9.52
+      #   with:
+      #     graph_file: release-workflow.yml
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - name: Quality Monitor
+        uses: uhafner/quality-monitor@v2.4.0
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Depcheck
+        uses: dependency-check/Dependency-Check_Action@main
+        id: Depcheck
+        with:
+          project: "grav-plugin-simple-captcha"
+          path: "."
+          format: "HTML"
+          args: >
+            --format XML
+            --format HTML
+            --format JSON
+            --exclude /node_modules/
+            --exclude /vendor/
+            --enableExperimental
+            --nodeAuditSkipDevDependencies
+            --disableJar
+            --disableNugetconf
+            --disableGolangMod
+            --disableGolangDep
+            --disableCpan
+            --disableCmake
+            --disableOpenSSL
+            --disableAutoconf
+            --disableBundleAudit
+            --disableRubygems
+            --disableYarnAudit
+            --disableMSBuild
+            --disableRetireJS
+            --disableMSBuild
+            --disablePyPkg
+            --disablePyDist
+            --disableArchive
+            --disableNuspec
+            --disableAssembly
+            --disableCocoapodsAnalyzer
+            --disableSwiftPackageManagerAnalyzer
+
+      - name: Upload dependency check HTML report artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: dependency_check_report
+          path: reports/dependency-check-report.html
+
+      - name: Install html2text
+        shell: bash
+        run: pip install html2text
+
+      - name: Convert HTML to Markdown using Python
+        shell: bash
+        run: |
+          python -c "
+          import html2text
+          with open('reports/dependency-check-report.html', 'r') as f:
+              html_content = f.read()
+          markdown_content = html2text.html2text(html_content)
+          with open('dependency-check-report.md', 'w') as f:
+              f.write(markdown_content)
+          "
+
+      - name: Add report to Summary
+        shell: bash
+        run: |
+          echo "### Dependency Check Report" >> $GITHUB_STEP_SUMMARY
+          cat "dependency-check-report.md" >> $GITHUB_STEP_SUMMARY

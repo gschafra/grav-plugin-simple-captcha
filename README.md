@@ -1,4 +1,9 @@
 # Simple Captcha Plugin
+[![Build Status](https://github.com/gschafra/grav-plugin-simple-captcha/actions/workflows/quality-workflow.yml/badge.svg)](https://github.com/gschafra/grav-plugin-simple-captcha/actions?workflow=Quality+Build)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gschafra_grav-plugin-simple-captcha&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gschafra_grav-plugin-simple-captcha)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/2c839cbd7e1843d1bec3747057c1a228)](https://app.codacy.com/gh/gschafra/grav-plugin-simple-captcha/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Latest](https://img.shields.io/github/release/gschafra/grav-plugin-simple-captcha.svg)](https://github.com/gschafra/grav-plugin-simple-captcha)
+![Snyk](https://snyk.io/test/github/gschafra/grav-plugin-simple-captcha/badge.svg)
 
 **This README.md file should be modified to describe the features, installation, configuration, and general usage of the plugin.**
 

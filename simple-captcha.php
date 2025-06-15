@@ -103,7 +103,7 @@ class SimpleCaptchaPlugin extends Plugin
             case 'simplecaptcha':
                 // make sure we have the details
                 $phrase = $form->getValue('simplecaptchaphrase');
-                if (!$phrase || $phrase !== $phrase) {
+                if (!$phrase || $phrase !== $this->getSessionPhrase()) {
                     $this->grav->fireEvent('onFormValidationError', new Event([
                         'form'    => $form,
                         'message' => $this->grav['language']->translate('PLUGIN_FORM.ERROR_VALIDATING_CAPTCHA')

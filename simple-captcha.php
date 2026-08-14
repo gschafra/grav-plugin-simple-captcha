@@ -84,9 +84,20 @@ class SimpleCaptchaPlugin extends Plugin
             return;
         }
 
-        $this->simpleCaptcha = $this->initCaptcha();
+        if (session_status() != PHP_SESSION_ACTIVE) {
+            session_start();
+        }
 
-        $this->grav['twig']->twig_vars['simplecaptcha'] = $this->simpleCaptcha;
+        // Reuse existing captcha; regenerating on every page visit breaks the
+        // phrase/image pair whenever the user navigates away and returns.
+        $inline = $this->getSessionInline();
+        if (!$inline || !$this->getSessionPhrase()) {
+            $this->simpleCaptcha = $this->initCaptcha();
+            $inline = $this->simpleCaptcha->inline();
+            $this->setSessionInline($inline);
+        }
+
+        $this->grav['twig']->twig_vars['simplecaptcha_inline'] = $inline;
     }
 
     /**
@@ -111,8 +122,9 @@ class SimpleCaptchaPlugin extends Plugin
                     $event->stopPropagation();
                 }
 
-                // Generate a new captcha
-                $this->initCaptcha();
+                // Generate a fresh captcha for the next form render
+                $this->simpleCaptcha = $this->initCaptcha();
+                $this->setSessionInline($this->simpleCaptcha->inline());
 
                 break;
         }
@@ -151,12 +163,23 @@ class SimpleCaptchaPlugin extends Plugin
 
     private function getSessionPhrase(): ?string
     {
-        $phrase = $this->config->get('plugins.simple-captcha.session_id', 'SIMPLE_CAPTCHA_PHRASE');
-        return isset($_SESSION[$phrase]) ? $_SESSION[$phrase] : null;
+        $key = $this->config->get('plugins.simple-captcha.session_id', 'SIMPLE_CAPTCHA_PHRASE');
+        return isset($_SESSION[$key]) ? $_SESSION[$key] : null;
     }
 
     private function setSessionPhrase(string $phrase): void
     {
         $_SESSION[$this->config->get('plugins.simple-captcha.session_id', 'SIMPLE_CAPTCHA_PHRASE')] = $phrase;
+    }
+
+    private function getSessionInline(): ?string
+    {
+        $key = $this->config->get('plugins.simple-captcha.session_id', 'SIMPLE_CAPTCHA_PHRASE') . '_INLINE';
+        return isset($_SESSION[$key]) ? $_SESSION[$key] : null;
+    }
+
+    private function setSessionInline(string $inline): void
+    {
+        $_SESSION[$this->config->get('plugins.simple-captcha.session_id', 'SIMPLE_CAPTCHA_PHRASE') . '_INLINE'] = $inline;
     }
 }

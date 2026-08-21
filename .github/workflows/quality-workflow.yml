@@ -55,8 +55,6 @@ jobs:
             --disableRubygems
             --disableYarnAudit
             --disableMSBuild
-            --disableRetireJS
-            --disableMSBuild
             --disablePyPkg
             --disablePyDist
             --disableArchive

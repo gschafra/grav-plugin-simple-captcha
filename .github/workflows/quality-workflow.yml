@@ -18,14 +18,14 @@ jobs:
       #   with:
       #     graph_file: release-workflow.yml
       - name: Checkout
-        uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+        uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         with:
           version: 9
       - name: Quality Monitor
-        uses: uhafner/quality-monitor@v2.4.0
+        uses: uhafner/quality-monitor@v4
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v8
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Depcheck

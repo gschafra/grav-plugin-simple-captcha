@@ -23,7 +23,7 @@ jobs:
         with:
           version: 11
       - name: Quality Monitor
-        uses: uhafner/quality-monitor@v4
+        uses: uhafner/quality-monitor@v14.16.0
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v8
         env:
